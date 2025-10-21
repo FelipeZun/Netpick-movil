@@ -1,7 +1,8 @@
-package model
-import model.UsuarioErrores;
+package com.example.netpick_movil.model
 
-data class UsuarioUiState (
+import com.example.netpick_movil.model.UsuarioErrores
+
+data class UsuarioUIState (
     val nombre: String = "",
     val correo: String = "",
     val clave: String = "",

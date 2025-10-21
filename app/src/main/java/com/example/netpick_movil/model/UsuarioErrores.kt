@@ -1,4 +1,4 @@
-package model
+package com.example.netpick_movil.model
 
 data class UsuarioErrores (
     val nombre: String? = null,
