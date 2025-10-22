@@ -1,5 +1,6 @@
 package com.example.netpick_movil.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.example.netpick_movil.model.Producto
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -7,23 +8,22 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-data class HomeUIState(
-    val searchQuery: String = "",
-    val productos: List<Producto> = emptyList()
+data class ProductDetailState(
+    val product: Producto? = null,
+    val quantity: Int = 1,
+    val isFavorite: Boolean = false
 )
 
-class HomeViewModel : ViewModel() {
+class ProductDetailViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HomeUIState())
-    val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
+    private val productId: String = checkNotNull(savedStateHandle["productId"])
+
+    private val _uiState = MutableStateFlow(ProductDetailState())
+    val uiState: StateFlow<ProductDetailState> = _uiState.asStateFlow()
 
     init {
-        _uiState.update { it.copy(productos = getMockProductos()) }
-    }
-
-    fun onSearchQueryChanged(query: String) {
-        _uiState.update { it.copy(searchQuery = query) }
-        // TODO: Implement search logic
+        val product = getMockProductos().find { it.id == productId }
+        _uiState.update { it.copy(product = product) }
     }
 
     private fun getMockProductos(): List<Producto> {
@@ -50,5 +50,15 @@ class HomeViewModel : ViewModel() {
                 description = "Visualiza tu victoria con el monitor de juegos MSI Optix G241. Equipado con una frecuencia de actualización de 144 Hz y un panel IPS con tiempo de respuesta de 1 ms, te dará la ventaja competitiva que necesitas."
             )
         )
+    }
+
+    fun onFavoriteClicked() {
+        _uiState.update { it.copy(isFavorite = !it.isFavorite) }
+    }
+
+    fun onQuantityChanged(newQuantity: Int) {
+        if (newQuantity > 0) {
+            _uiState.update { it.copy(quantity = newQuantity) }
+        }
     }
 }

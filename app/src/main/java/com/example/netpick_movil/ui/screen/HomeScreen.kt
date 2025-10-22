@@ -1,5 +1,6 @@
 package com.example.netpick_movil.ui.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -66,18 +67,26 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) { 
             items(uiState.productos) { product ->
-                ProductCard(product = product)
+                ProductCard(navController = navController, product = product)
             }
         }
     }
 }
 
 @Composable
-fun ProductCard(product: Producto, modifier: Modifier = Modifier) {
-    Card(modifier = modifier) {
+fun ProductCard(
+    navController: NavController,
+    product: Producto,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.clickable { 
+            navController.navigate(Screen.ProductDetail.createRoute(product.id))
+        }
+    ) {
         Column {
             AsyncImage(
-                model = product.imageUrl,
+                model = product.imageUrls.firstOrNull(),
                 contentDescription = null,
                 modifier = Modifier.fillMaxWidth().height(128.dp),
                 contentScale = ContentScale.Crop

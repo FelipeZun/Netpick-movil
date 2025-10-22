@@ -2,15 +2,17 @@ package com.example.netpick_movil.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.netpick_movil.ui.screen.Screen
 import com.example.netpick_movil.ui.screen.HomeScreen
 import com.example.netpick_movil.ui.screen.LoginScreen
 import com.example.netpick_movil.ui.screen.UserFormScreen
 import com.example.netpick_movil.ui.screen.ProfileScreen
-import com.example.netpick_movil.ui.screen.SettingsScreen
+import com.example.netpick_movil.ui.screen.ProductDetailScreen
 
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier) {
@@ -29,11 +31,14 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         composable(Screen.Profile.route) {
             ProfileScreen()
         }
-        composable(Screen.Settings.route) {
-            SettingsScreen()
-        }
         composable(Screen.UserForm.route) {
             UserFormScreen()
+        }
+        composable(
+            route = Screen.ProductDetail.route,
+            arguments = listOf(navArgument("productId") { type = NavType.StringType })
+        ) {
+            ProductDetailScreen()
         }
     }
 }

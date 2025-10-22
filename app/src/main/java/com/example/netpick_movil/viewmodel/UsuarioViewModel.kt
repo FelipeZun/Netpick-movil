@@ -1,6 +1,8 @@
 package com.example.netpick_movil.viewmodel
 
+import android.util.Patterns
 import androidx.lifecycle.ViewModel
+import com.example.netpick_movil.model.UsuarioErrores
 import com.example.netpick_movil.model.UsuarioUIState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,8 +32,26 @@ class UsuarioViewModel : ViewModel() {
                 _uiState.update { it.copy(aceptaTerminos = event.acepta) }
             }
             is UsuarioFormEvent.Submit -> {
-                // TODO: Handle form submission
+                validateForm()
             }
+        }
+    }
+
+    private fun validateForm() {
+        val state = _uiState.value
+        val errores = UsuarioErrores(
+            nombre = if (state.nombre.isBlank()) "El nombre no puede estar vacío" else null,
+            correo = if (!Patterns.EMAIL_ADDRESS.matcher(state.correo).matches()) "El correo no es válido" else null,
+            clave = if (state.clave.length < 6) "La clave debe tener al menos 6 caracteres" else null,
+            aceptaTerminos = if (!state.aceptaTerminos) "Debes aceptar los términos y condiciones" else null
+        )
+
+        _uiState.update { it.copy(errores = errores) }
+
+        val hasError = listOf(errores.nombre, errores.correo, errores.clave, errores.aceptaTerminos).any { it != null }
+
+        if (!hasError) {
+            // TODO: Handle successful registration
         }
     }
 }
