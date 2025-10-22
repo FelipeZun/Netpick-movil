@@ -1,4 +1,39 @@
-package navigation
+package com.example.netpick_movil.navigation
 
-class AppNavigation {
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.netpick_movil.ui.screen.Screen
+import com.example.netpick_movil.ui.screen.HomeScreen
+import com.example.netpick_movil.ui.screen.LoginScreen
+import com.example.netpick_movil.ui.screen.UserFormScreen
+import com.example.netpick_movil.ui.screen.ProfileScreen
+import com.example.netpick_movil.ui.screen.SettingsScreen
+
+@Composable
+fun AppNavigation(modifier: Modifier = Modifier) {
+    val navController = rememberNavController()
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Home.route,
+        modifier = modifier
+    ) {
+        composable(Screen.Login.route) {
+            LoginScreen(navController = navController)
+        }
+        composable(Screen.Home.route) {
+            HomeScreen(navController = navController)
+        }
+        composable(Screen.Profile.route) {
+            ProfileScreen()
+        }
+        composable(Screen.Settings.route) {
+            SettingsScreen()
+        }
+        composable(Screen.UserForm.route) {
+            UserFormScreen()
+        }
+    }
 }
