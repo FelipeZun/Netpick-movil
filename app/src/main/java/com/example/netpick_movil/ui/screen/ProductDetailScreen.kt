@@ -1,6 +1,5 @@
 package com.example.netpick_movil.ui.screen
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
@@ -34,12 +31,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.netpick_movil.viewmodel.ProductDetailViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProductDetailScreen(
+    navController: NavController,
+    productId: String,
     modifier: Modifier = Modifier,
     viewModel: ProductDetailViewModel = viewModel()
 ) {
@@ -54,16 +53,15 @@ fun ProductDetailScreen(
     }
 
     Column(modifier = modifier.fillMaxSize()) {
-        // Image Gallery
-        val pagerState = rememberPagerState { product.imageUrls.size }
-        HorizontalPager(state = pagerState, modifier = Modifier.height(300.dp)) {
-            AsyncImage(
-                model = product.imageUrls[it],
-                contentDescription = null,
-                modifier = Modifier.fillMaxWidth(),
-                contentScale = ContentScale.Crop
-            )
-        }
+        // Imagen del producto
+        AsyncImage(
+            model = product.imageUrls.firstOrNull(),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp),
+            contentScale = ContentScale.Crop
+        )
 
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -72,7 +70,7 @@ fun ProductDetailScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = product.nombre, 
+                    text = product.nombre,
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.weight(1f)
                 )
@@ -122,7 +120,14 @@ fun ProductDetailScreen(
             Text(text = "Descripción", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = product.description, style = MaterialTheme.typography.bodyMedium)
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { navController.navigateUp() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Volver")
+            }
         }
     }
 }
-

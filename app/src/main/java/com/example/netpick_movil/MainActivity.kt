@@ -14,7 +14,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.netpick_movil.data.local.AppDatabase
+import androidx.navigation.compose.rememberNavController
 import com.example.netpick_movil.navigation.AppNavigation
+import com.example.netpick_movil.ui.screen.HomeScreen
 import com.example.netpick_movil.ui.theme.NetpickMovilTheme
 import com.example.netpick_movil.viewmodel.LoginViewModel
 import com.example.netpick_movil.viewmodel.LoginViewModelFactory
@@ -27,9 +29,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NetpickMovilTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    AppNavigation(modifier = Modifier.padding(innerPadding))
-                }
+                AppNavigation(modifier = Modifier.fillMaxSize())
             }
         }
     }
@@ -54,7 +54,8 @@ fun usuarioViewModel(): UsuarioViewModel {
 @Composable
 fun DefaultPreview() {
     NetpickMovilTheme {
-        AppNavigation()
+        //AppNavigation()
+        HomeScreen(navController = rememberNavController())
     }
 }
 

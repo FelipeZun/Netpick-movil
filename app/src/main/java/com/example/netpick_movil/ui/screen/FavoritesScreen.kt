@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,53 +27,68 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.netpick_movil.model.Producto
-import com.example.netpick_movil.viewmodel.HomeViewModel
+import com.example.netpick_movil.viewmodel.FavoritesViewModel
 
 @Composable
-fun HomeScreen(
+fun FavoritesScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = viewModel()
+    viewModel: FavoritesViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     Column(modifier = modifier.fillMaxSize()) {
+        // Header de favoritos
         Column(modifier = Modifier.padding(16.dp)) {
-            TextField(
-                value = uiState.searchQuery,
-                onValueChange = { viewModel.onSearchQueryChanged(it) },
-                label = { Text("Buscar productos") },
-                modifier = Modifier.fillMaxWidth()
+            Text(
+                text = "Mis Favoritos",
+                style = androidx.compose.material3.MaterialTheme.typography.headlineSmall
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { navController.navigate(Screen.Login.route) }) {
-                    Text("Iniciar Sesión")
-                }
-                Button(onClick = { navController.navigate(Screen.UserForm.route) }) {
-                    Text("Crear Cuenta")
-                }
-            }
+            Text(
+                text = "${uiState.favoriteProducts.size} productos guardados",
+                style = androidx.compose.material3.MaterialTheme.typography.bodyMedium
+            )
         }
 
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 128.dp),
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(uiState.productosFiltrados) { product ->
-                ProductCard(navController = navController, product = product)
+        if (uiState.favoriteProducts.isEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "No tienes favoritos aún",
+                    style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = { navController.navigate(Screen.Home.route) }) {
+                    Text("Explorar productos")
+                }
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 128.dp),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(uiState.favoriteProducts) { product ->
+                    FavoriteProductCard(navController = navController, product = product, viewModel = viewModel)
+                }
             }
         }
     }
 }
 
 @Composable
-fun ProductCard(
+fun FavoriteProductCard(
     navController: NavController,
     product: Producto,
+    viewModel: FavoritesViewModel,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -92,6 +106,13 @@ fun ProductCard(
             Column(modifier = Modifier.padding(8.dp)) {
                 Text(text = product.nombre, fontWeight = FontWeight.Bold)
                 Text(text = "$${product.precio}")
+
+                Button(
+                    onClick = { viewModel.removeFromFavorites(product.id) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Quitar")
+                }
             }
         }
     }
