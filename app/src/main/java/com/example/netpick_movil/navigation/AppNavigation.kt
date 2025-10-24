@@ -32,7 +32,13 @@ fun AppNavigation(modifier: Modifier = Modifier) {
             ProfileScreen()
         }
         composable(Screen.UserForm.route) {
-            UserFormScreen()
+            UserFormScreen(
+                onRegisterSuccess = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.UserForm.route) { inclusive = true }
+                    }
+                }
+            )
         }
         composable(
             route = Screen.ProductDetail.route,

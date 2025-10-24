@@ -1,59 +1,3 @@
-<<<<<<< HEAD
-package com.example.netpick_movil.viewmodel
-
-import androidx.lifecycle.ViewModel
-import com.example.netpick_movil.model.Producto
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-
-data class HomeUIState(
-    val searchQuery: String = "",
-    val productos: List<Producto> = emptyList()
-)
-
-class HomeViewModel : ViewModel() {
-
-    private val _uiState = MutableStateFlow(HomeUIState())
-    val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
-
-    init {
-        _uiState.update { it.copy(productos = getMockProductos()) }
-    }
-
-    fun onSearchQueryChanged(query: String) {
-        _uiState.update { it.copy(searchQuery = query) }
-        // TODO: Implement search logic
-    }
-
-    private fun getMockProductos(): List<Producto> {
-        return listOf(
-            Producto(
-                id = "1", 
-                nombre = "Celular Samsung Galaxy A73", 
-                precio = 450.000,
-                imageUrls = listOf("https://picsum.photos/seed/samsung/800/600", "https://picsum.photos/seed/samsung2/800/600"), 
-                description = "Experimenta un rendimiento increíble con el procesador Snapdragon 778G 5G. La cámara de 108 MP captura detalles asombrosos, y la pantalla Super AMOLED+ de 120 Hz ofrece una visualización fluida y vibrante."
-            ),
-            Producto(
-                id = "2", 
-                nombre = "Computador de Escritorio 'Gamer'", 
-                precio = 180.000,
-                imageUrls = listOf("https://picsum.photos/seed/gamerpc/800/600"),
-                description = "Domina el campo de batalla con este PC gamer. Equipado con un procesador de última generación, una tarjeta gráfica potente y memoria RAM de alta velocidad para una experiencia de juego sin igual."
-            ),
-            Producto(
-                id = "3", 
-                nombre = "Monitor MSI Optix G241", 
-                precio = 250.000,
-                imageUrls = listOf("https://picsum.photos/seed/msimonitor/800/600"), 
-                description = "Visualiza tu victoria con el monitor de juegos MSI Optix G241. Equipado con una frecuencia de actualización de 144 Hz y un panel IPS con tiempo de respuesta de 1 ms, te dará la ventaja competitiva que necesitas."
-            )
-        )
-    }
-}
-=======
 package com.example.netpick_movil.viewmodel
 
 import androidx.lifecycle.ViewModel
@@ -135,4 +79,3 @@ class HomeViewModel : ViewModel() {
         )
     }
 }
->>>>>>> origin/master

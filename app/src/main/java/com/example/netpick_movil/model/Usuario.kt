@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-package com.example.netpick_movil.model
-
-data class Usuario(
-    val id: String,
-    val nombre: String,
-    val correo: String,
-    val direccion: String
-)
-=======
 package com.example.netpick_movil.model
 
 import androidx.room.Entity
@@ -21,4 +11,3 @@ data class Usuario(
     val clave: String,
     val direccion: String
 )
->>>>>>> origin/master

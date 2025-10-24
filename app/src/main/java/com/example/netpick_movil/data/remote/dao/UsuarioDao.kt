@@ -8,8 +8,11 @@ import com.example.netpick_movil.model.Usuario
 @Dao
 interface UsuarioDao {
     @Insert
-    suspend fun registrar (usuario: Usuario)
+    suspend fun registrar(usuario: Usuario)
 
     @Query("SELECT * FROM usuarios WHERE correo = :correo AND clave = :clave LIMIT 1")
-    suspend fun login (correo: String, clave: String): Usuario?
+    suspend fun login(correo: String, clave: String): Usuario?
+
+    @Query("SELECT * FROM usuarios WHERE correo = :correo LIMIT 1")
+    suspend fun buscarPorCorreo(correo: String): Usuario?
 }
