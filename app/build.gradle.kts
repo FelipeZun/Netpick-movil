@@ -2,6 +2,10 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+<<<<<<< HEAD
+=======
+    id("kotlin-kapt")
+>>>>>>> origin/master
 }
 
 android {
@@ -43,6 +47,12 @@ dependencies {
     val lifecycle_version = "2.9.4"
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:${lifecycle_version}")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:${lifecycle_version}")
+<<<<<<< HEAD
+=======
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+>>>>>>> origin/master
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
