@@ -10,23 +10,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.netpick_movil.ui.screen.CartScreen
-import com.example.netpick_movil.ui.screen.FavoritesScreen
-import com.example.netpick_movil.ui.screen.HomeScreen
-import com.example.netpick_movil.ui.screen.LoginScreen
-import com.example.netpick_movil.ui.screen.ProductDetailScreen
-import com.example.netpick_movil.ui.screen.ProfileScreen
-import com.example.netpick_movil.ui.screen.PurchaseSuccessScreen
-import com.example.netpick_movil.ui.screen.Screen
-import com.example.netpick_movil.ui.screen.UserFormScreen
+import com.example.netpick_movil.ui.screen.*
 import com.example.netpick_movil.viewmodel.CartViewModel
+import com.example.netpick_movil.viewmodel.FavoritesViewModel
 
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
     val cartViewModel: CartViewModel = viewModel()
+    val favoritesViewModel: FavoritesViewModel = viewModel()
 
     NetpickScaffold(
         currentRoute = currentRoute,
@@ -40,37 +35,36 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         NavHost(
             navController = navController,
             startDestination = Screen.Home.route,
-            modifier = modifier,
+            modifier = modifier
         ) {
-            composable(Screen.Login.route) {
-                LoginScreen(navController = navController)
-            }
-            composable(Screen.Home.route) {
-                HomeScreen(navController = navController)
-            }
-            composable(Screen.Profile.route) {
-                ProfileScreen()
-            }
+            composable(Screen.Login.route) { LoginScreen(navController = navController) }
+            composable(Screen.Home.route) { HomeScreen(navController = navController) }
+            composable(Screen.Profile.route) { ProfileScreen() }
             composable(Screen.UserForm.route) {
-                UserFormScreen(
-                    onRegisterSuccess = {
-                        navController.navigate(Screen.Login.route) {
-                            popUpTo(Screen.UserForm.route) { inclusive = true }
-                        }
+                UserFormScreen(onRegisterSuccess = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.UserForm.route) { inclusive = true }
                     }
-                )
+                })
             }
             composable(Screen.Categories.route) {
-                androidx.compose.material3.Text("Categorías")
+                androidx.compose.material3.Text("Categorías - En desarrollo")
             }
+
             composable(Screen.Favorites.route) {
-                androidx.compose.material3.Text("Favoritos")
+                FavoritesScreen(
+                    navController = navController,
+                    viewModel = favoritesViewModel
+                )
             }
             composable(Screen.Cart.route) {
                 CartScreen(
                     navController = navController,
                     viewModel = cartViewModel
                 )
+            }
+            composable(Screen.Confirmation.route) {
+                ConfirmationScreen(navController = navController)
             }
             composable(
                 route = Screen.ProductDetail.route,
@@ -80,18 +74,9 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 ProductDetailScreen(
                     navController = navController,
                     productId = productId,
-                    cartViewModel = cartViewModel
+                    cartViewModel = cartViewModel,
+                    favoritesViewModel = favoritesViewModel
                 )
-            }
-            composable("purchase_success/{totalPrice}") { backStackEntry ->
-                val totalPrice = backStackEntry.arguments?.getString("totalPrice")?.toDoubleOrNull() ?: 0.0
-                PurchaseSuccessScreen(
-                    navController = navController,
-                    totalPrice = totalPrice
-                )
-            }
-            composable("favorites") {
-                FavoritesScreen(navController = navController)
             }
         }
     }

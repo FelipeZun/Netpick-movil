@@ -62,6 +62,12 @@ class CartViewModel : ViewModel() {
         }
     }
 
+    fun clearCart() {
+        _uiState.update {
+            it.copy(cartItems = emptyList(), totalPrice = 0.0)
+        }
+    }
+
     private fun calculateTotalPrice(cartItems: List<CartItem>): Double {
         return cartItems.sumOf { it.product.precio * it.quantity }
     }

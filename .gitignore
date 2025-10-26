@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+# Local properties
+local.properties
