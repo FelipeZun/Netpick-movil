@@ -1,2 +1,0 @@
-# Netpick-movil
-Aplicaciones Móviles
