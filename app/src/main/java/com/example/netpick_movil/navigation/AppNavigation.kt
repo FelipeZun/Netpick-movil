@@ -3,24 +3,28 @@ package com.example.netpick_movil.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.netpick_movil.ui.screen.Screen
+import com.example.netpick_movil.ui.screen.CartScreen
 import com.example.netpick_movil.ui.screen.HomeScreen
 import com.example.netpick_movil.ui.screen.LoginScreen
-import com.example.netpick_movil.ui.screen.UserFormScreen
-import com.example.netpick_movil.ui.screen.ProfileScreen
 import com.example.netpick_movil.ui.screen.ProductDetailScreen
+import com.example.netpick_movil.ui.screen.ProfileScreen
+import com.example.netpick_movil.ui.screen.Screen
+import com.example.netpick_movil.ui.screen.UserFormScreen
+import com.example.netpick_movil.viewmodel.CartViewModel
 
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val cartViewModel: CartViewModel = viewModel()
 
     NetpickScaffold(
         currentRoute = currentRoute,
@@ -34,7 +38,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         NavHost(
             navController = navController,
             startDestination = Screen.Home.route,
-            modifier = modifier
+            modifier = modifier,
         ) {
             composable(Screen.Login.route) {
                 LoginScreen(navController = navController)
@@ -55,13 +59,16 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 )
             }
             composable(Screen.Categories.route) {
-                androidx.compose.material3.Text("Categorías - En desarrollo")
+                androidx.compose.material3.Text("Categorías")
             }
             composable(Screen.Favorites.route) {
-                androidx.compose.material3.Text("Favoritos - En desarrollo")
+                androidx.compose.material3.Text("Favoritos")
             }
             composable(Screen.Cart.route) {
-                androidx.compose.material3.Text("Carrito - En desarrollo")
+                CartScreen(
+                    navController = navController,
+                    viewModel = cartViewModel
+                )
             }
             composable(
                 route = Screen.ProductDetail.route,
@@ -70,7 +77,8 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 val productId = backStackEntry.arguments?.getString("productId") ?: ""
                 ProductDetailScreen(
                     navController = navController,
-                    productId = productId
+                    productId = productId,
+                    cartViewModel = cartViewModel
                 )
             }
         }

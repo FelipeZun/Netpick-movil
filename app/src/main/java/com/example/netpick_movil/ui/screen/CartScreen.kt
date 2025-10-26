@@ -19,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.netpick_movil.model.Producto
@@ -39,9 +39,11 @@ import com.example.netpick_movil.viewmodel.CartViewModel
 fun CartScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    viewModel: CartViewModel = viewModel()
+    viewModel: CartViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    val totalItems = uiState.cartItems.sumOf { it.quantity }
 
     Column(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -51,7 +53,7 @@ fun CartScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "${uiState.cartItems.size} productos en el carrito",
+                text = "$totalItems productos en el carrito",
                 style = androidx.compose.material3.MaterialTheme.typography.bodyMedium
             )
         }
@@ -102,27 +104,17 @@ fun CartScreen(
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Subtotal:", fontWeight = FontWeight.Normal)
-                        Text("$${uiState.totalPrice}", fontWeight = FontWeight.Bold)
+                        Text("Total:", style = MaterialTheme.typography.titleLarge)
+                        Text(
+                            "$${uiState.totalPrice}",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Envío:", fontWeight = FontWeight.Normal)
-                        Text("Gratis", fontWeight = FontWeight.Bold)
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Total:", fontWeight = FontWeight.Normal)
-                        Text("$${uiState.totalPrice}", fontWeight = FontWeight.Bold)
-                    }
+
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = { /* TODO: Implementar checkout */ },
