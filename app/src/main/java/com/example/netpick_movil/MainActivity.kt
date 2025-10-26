@@ -52,7 +52,7 @@ fun usuarioViewModel(): UsuarioViewModel {
 @Composable
 fun DefaultPreview() {
     NetpickMovilTheme {
-        //AppNavigation()
+        AppNavigation()
         HomeScreen(navController = rememberNavController())
     }
 }

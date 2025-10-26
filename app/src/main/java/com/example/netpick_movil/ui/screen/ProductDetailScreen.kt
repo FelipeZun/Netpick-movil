@@ -27,27 +27,40 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.netpick_movil.viewmodel.CartViewModel
+import com.example.netpick_movil.viewmodel.FavoritesViewModel
 import com.example.netpick_movil.viewmodel.ProductDetailViewModel
+import com.example.netpick_movil.viewmodel.ProductDetailViewModelFactory
 
 @Composable
 fun ProductDetailScreen(
     navController: NavController,
     productId: String,
     modifier: Modifier = Modifier,
-    viewModel: ProductDetailViewModel = viewModel(),
-    cartViewModel: CartViewModel
+    favoritesViewModel: FavoritesViewModel = viewModel(),
+    cartViewModel: CartViewModel = viewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val productDetailViewModel: ProductDetailViewModel = viewModel(
+        factory = ProductDetailViewModelFactory(
+            savedStateHandle = remember {
+                SavedStateHandle(mapOf("productId" to productId))
+            },
+            favoritesViewModel = favoritesViewModel
+        )
+    )
+
+    val uiState by productDetailViewModel.uiState.collectAsState()
     val product = uiState.product
 
     if (product == null) {
@@ -58,7 +71,6 @@ fun ProductDetailScreen(
     }
 
     Column(modifier = modifier.fillMaxSize()) {
-        // Imagen del producto
         AsyncImage(
             model = product.imageUrls.firstOrNull(),
             contentDescription = null,
@@ -80,7 +92,7 @@ fun ProductDetailScreen(
                     modifier = Modifier.weight(1f)
                 )
                 Row {
-                    IconButton(onClick = { viewModel.onFavoriteClicked() }) {
+                    IconButton(onClick = { productDetailViewModel.onFavoriteClicked() }) {
                         Icon(
                             imageVector = if (uiState.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                             contentDescription = "Favorito",
@@ -99,11 +111,11 @@ fun ProductDetailScreen(
                 Text(text = "$${product.precio}", style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.weight(1f))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { viewModel.onQuantityChanged(uiState.quantity - 1) }) {
+                    IconButton(onClick = { productDetailViewModel.onQuantityChanged(uiState.quantity - 1) }) {
                         Icon(imageVector = Icons.Filled.Remove, contentDescription = "Quitar")
                     }
                     Text(text = uiState.quantity.toString(), style = MaterialTheme.typography.bodyLarge)
-                    IconButton(onClick = { viewModel.onQuantityChanged(uiState.quantity + 1) }) {
+                    IconButton(onClick = { productDetailViewModel.onQuantityChanged(uiState.quantity + 1) }) {
                         Icon(imageVector = Icons.Filled.Add, contentDescription = "Añadir")
                     }
                 }
@@ -124,10 +136,18 @@ fun ProductDetailScreen(
                         imageVector = Icons.Default.ShoppingCart,
                         contentDescription = "Añadir al carrito"
                     )
-                    Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing)) // Espacio entre ícono y texto
+                    Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                     Text("Añadir al carrito")
                 }
-                Button(onClick = { /* TODO: Buy now */ }, modifier = Modifier.weight(1f)) {
+                Button(
+                    onClick = {
+                        product?.let {
+                            val totalPrice = it.precio * uiState.quantity
+                            navController.navigate("purchase_success/$totalPrice")
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
                     Text("Comprar ahora")
                 }
             }

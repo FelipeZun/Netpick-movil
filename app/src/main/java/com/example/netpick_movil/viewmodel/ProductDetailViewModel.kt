@@ -14,7 +14,10 @@ data class ProductDetailState(
     val isFavorite: Boolean = false
 )
 
-class ProductDetailViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
+class ProductDetailViewModel(
+    savedStateHandle: SavedStateHandle,
+    favoritesViewModel: FavoritesViewModel
+) : ViewModel() {
 
     private val productId: String = checkNotNull(savedStateHandle["productId"])
 

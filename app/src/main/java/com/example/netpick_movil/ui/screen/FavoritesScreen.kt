@@ -1,83 +1,78 @@
 package com.example.netpick_movil.ui.screen
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.netpick_movil.model.Producto
 import com.example.netpick_movil.viewmodel.FavoritesViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoritesScreen(
     navController: NavController,
-    modifier: Modifier = Modifier,
-    viewModel: FavoritesViewModel = viewModel()
+    favoritesViewModel: FavoritesViewModel = viewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val favorites by favoritesViewModel.favorites.collectAsState()
 
-    Column(modifier = modifier.fillMaxSize()) {
-        // Header de favoritos
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "Mis Favoritos",
-                style = androidx.compose.material3.MaterialTheme.typography.headlineSmall
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "${uiState.favoriteProducts.size} productos guardados",
-                style = androidx.compose.material3.MaterialTheme.typography.bodyMedium
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Mis Favoritos") }
             )
         }
-
-        if (uiState.favoriteProducts.isEmpty()) {
+    ) { innerPadding ->
+        if (favorites.isEmpty()) {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(32.dp),
-                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = "No tienes favoritos aún",
-                    style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
+                Icon(
+                    imageVector = Icons.Filled.Favorite,
+                    contentDescription = "Favoritos vacíos",
+                    modifier = Modifier.size(80.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { navController.navigate(Screen.Home.route) }) {
-                    Text("Explorar productos")
-                }
+                Text(
+                    "No tienes favoritos",
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    "Agrega productos a favoritos para verlos aquí",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         } else {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 128.dp),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            LazyColumn(
+                modifier = Modifier.padding(innerPadding),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(uiState.favoriteProducts) { product ->
-                    FavoriteProductCard(navController = navController, product = product, viewModel = viewModel)
+                items(favorites, key = { it.id }) { product ->
+                    FavoriteProductItem(
+                        product = product,
+                        onRemove = { favoritesViewModel.removeFromFavorites(product.id) },
+                        onClick = { navController.navigate("product_detail/${product.id}") },
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
                 }
             }
         }
@@ -85,34 +80,61 @@ fun FavoritesScreen(
 }
 
 @Composable
-fun FavoriteProductCard(
-    navController: NavController,
-    product: Producto,
-    viewModel: FavoritesViewModel,
+fun FavoriteProductItem(
+    product: com.example.netpick_movil.model.Producto,
+    onRemove: () -> Unit,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.clickable {
-            navController.navigate(Screen.ProductDetail.createRoute(product.id))
-        }
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             AsyncImage(
                 model = product.imageUrls.firstOrNull(),
                 contentDescription = null,
-                modifier = Modifier.fillMaxWidth().height(128.dp),
+                modifier = Modifier
+                    .size(80.dp)
+                    .weight(0.3f),
                 contentScale = ContentScale.Crop
             )
-            Column(modifier = Modifier.padding(8.dp)) {
-                Text(text = product.nombre, fontWeight = FontWeight.Bold)
-                Text(text = "$${product.precio}")
 
-                Button(
-                    onClick = { viewModel.removeFromFavorites(product.id) },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Quitar")
-                }
+            Column(
+                modifier = Modifier.weight(0.5f)
+            ) {
+                Text(
+                    text = product.nombre,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "$${product.precio}",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            IconButton(
+                onClick = onRemove,
+                modifier = Modifier.weight(0.2f)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Favorite,
+                    contentDescription = "Quitar de favoritos",
+                    tint = MaterialTheme.colorScheme.primary
+                )
             }
         }
     }

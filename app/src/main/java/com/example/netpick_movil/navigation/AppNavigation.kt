@@ -11,10 +11,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.netpick_movil.ui.screen.CartScreen
+import com.example.netpick_movil.ui.screen.FavoritesScreen
 import com.example.netpick_movil.ui.screen.HomeScreen
 import com.example.netpick_movil.ui.screen.LoginScreen
 import com.example.netpick_movil.ui.screen.ProductDetailScreen
 import com.example.netpick_movil.ui.screen.ProfileScreen
+import com.example.netpick_movil.ui.screen.PurchaseSuccessScreen
 import com.example.netpick_movil.ui.screen.Screen
 import com.example.netpick_movil.ui.screen.UserFormScreen
 import com.example.netpick_movil.viewmodel.CartViewModel
@@ -80,6 +82,16 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                     productId = productId,
                     cartViewModel = cartViewModel
                 )
+            }
+            composable("purchase_success/{totalPrice}") { backStackEntry ->
+                val totalPrice = backStackEntry.arguments?.getString("totalPrice")?.toDoubleOrNull() ?: 0.0
+                PurchaseSuccessScreen(
+                    navController = navController,
+                    totalPrice = totalPrice
+                )
+            }
+            composable("favorites") {
+                FavoritesScreen(navController = navController)
             }
         }
     }
