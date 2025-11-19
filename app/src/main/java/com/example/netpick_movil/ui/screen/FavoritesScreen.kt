@@ -2,7 +2,8 @@ package com.example.netpick_movil.ui.screen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -56,11 +57,9 @@ fun FavoritesScreen(
                 }
             }
         } else {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 128.dp),
+            LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 items(uiState.favoriteProducts) { product ->
@@ -83,26 +82,42 @@ fun FavoriteProductCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.clickable {
-            navController.navigate(Screen.ProductDetail.createRoute(product.id))
-        }
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable {
+                navController.navigate(Screen.ProductDetail.createRoute(product.id))
+            }
     ) {
-        Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             AsyncImage(
                 model = product.imageUrls.firstOrNull(),
                 contentDescription = null,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(128.dp),
+                    .size(80.dp)
+                    .padding(end = 16.dp),
                 contentScale = ContentScale.Crop
             )
-            Column(modifier = Modifier.padding(8.dp)) {
-                Text(text = product.nombre, fontWeight = FontWeight.Bold)
-                Text(text = "$${product.precio}")
 
-                Button(
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = product.nombre,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = "$${product.precio}",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedButton(
                     onClick = { viewModel.toggleFavorite(product) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.wrapContentWidth()
                 ) {
                     Text("Quitar")
                 }
