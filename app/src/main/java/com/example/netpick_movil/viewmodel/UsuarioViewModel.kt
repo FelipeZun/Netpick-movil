@@ -1,96 +1,88 @@
 package com.example.netpick_movil.viewmodel
 
-import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.netpick_movil.data.remote.dao.UsuarioDao
 import com.example.netpick_movil.model.Usuario
 import com.example.netpick_movil.model.UsuarioErrores
 import com.example.netpick_movil.model.UsuarioUIState
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+
 
 class UsuarioViewModel(private val dao: UsuarioDao) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UsuarioUIState())
     val uiState: StateFlow<UsuarioUIState> = _uiState.asStateFlow()
 
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+
     fun onEvent(event: UsuarioFormEvent) {
         when (event) {
-            is UsuarioFormEvent.NombreChanged -> {
-                _uiState.update { it.copy(nombre = event.nombre) }
-            }
-            is UsuarioFormEvent.CorreoChanged -> {
-                _uiState.update { it.copy(correo = event.correo) }
-            }
-            is UsuarioFormEvent.ClaveChanged -> {
-                _uiState.update { it.copy(clave = event.clave) }
-            }
-            is UsuarioFormEvent.DireccionChanged -> {
-                _uiState.update { it.copy(direccion = event.direccion) }
-            }
-            is UsuarioFormEvent.AceptaTerminosChanged -> {
-                _uiState.update { it.copy(aceptaTerminos = event.acepta) }
-            }
-            is UsuarioFormEvent.Submit -> {
-                validateForm()
-            }
+            is UsuarioFormEvent.NombreChanged -> _uiState.update { it.copy(nombre = event.nombre) }
+            is UsuarioFormEvent.CorreoChanged -> _uiState.update { it.copy(correo = event.correo) }
+            is UsuarioFormEvent.ClaveChanged -> _uiState.update { it.copy(clave = event.clave) }
+            is UsuarioFormEvent.DireccionChanged -> _uiState.update { it.copy(direccion = event.direccion) }
+            is UsuarioFormEvent.AceptaTerminosChanged -> _uiState.update { it.copy(aceptaTerminos = event.acepta) }
+            is UsuarioFormEvent.Submit -> validateForm()
         }
     }
 
     private fun validateForm() {
         val state = _uiState.value
+        val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
+
         val errores = UsuarioErrores(
             nombre = if (state.nombre.isBlank()) "El nombre no puede estar vacío" else null,
-            correo = if (!Patterns.EMAIL_ADDRESS.matcher(state.correo).matches()) "El correo no es válido" else null,
+            correo = if (!emailRegex.matches(state.correo)) "El correo no es válido" else null,
             clave = if (state.clave.length < 6) "La clave debe tener al menos 6 caracteres" else null,
             direccion = if (state.direccion.isBlank()) "La dirección no puede estar vacía" else null,
-            aceptaTerminos = if (!state.aceptaTerminos) "Debes aceptar los términos y condiciones" else null
+            aceptaTerminos = if (!state.aceptaTerminos) "Debes aceptar términos" else null
         )
 
         _uiState.update { it.copy(errores = errores) }
 
-        val hasError = listOf(
-            errores.nombre,
-            errores.correo,
-            errores.clave,
-            errores.direccion,
-            errores.aceptaTerminos
-        ).any { it != null }
+        val hasError = listOf(errores.nombre, errores.correo, errores.clave, errores.direccion, errores.aceptaTerminos).any { it != null }
 
         if (!hasError) {
-            registrarUsuario()
+            registrarUsuarioEnFirebase()
         }
     }
 
-    private fun registrarUsuario() {
+    private fun registrarUsuarioEnFirebase() {
         viewModelScope.launch {
             try {
-                val usuario = Usuario(
+
+                val authResult = auth.createUserWithEmailAndPassword(
+                    _uiState.value.correo,
+                    _uiState.value.clave
+                ).await()
+
+                val firebaseUser = authResult.user
+                val firebaseId = firebaseUser?.uid ?: ""
+
+                val usuarioLocal = Usuario(
                     nombre = _uiState.value.nombre,
                     correo = _uiState.value.correo,
                     clave = _uiState.value.clave,
                     direccion = _uiState.value.direccion
                 )
-
-                dao.registrar(usuario)
+                dao.registrar(usuarioLocal)
 
                 _uiState.update {
-                    UsuarioUIState(
-                        errores = UsuarioErrores(
-                            registro = "¡Registro exitoso!"
-                        )
-                    )
+                    UsuarioUIState(errores = UsuarioErrores(registro = "¡Cuenta creada en la Nube!"))
                 }
 
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(
                         errores = UsuarioErrores(
-                            registro = "Error al registrar usuario: ${e.message}"
+                            registro = "Error Firebase: ${e.message}"
                         )
                     )
                 }

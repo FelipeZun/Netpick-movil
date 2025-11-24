@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "73343961404",
+    "project_id": "netpickkotlin-movil",
+    "storage_bucket": "netpickkotlin-movil.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:73343961404:android:024c0dfcc9a8642d067639",
+        "android_client_info": {
+          "package_name": "com.example.netpick_movil"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPwvNZqF8e1-VRh37z15N0CnH-Gk3MgQY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

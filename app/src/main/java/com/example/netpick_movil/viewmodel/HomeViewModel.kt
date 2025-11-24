@@ -17,12 +17,13 @@ data class HomeUIState(
     val isLoading: Boolean = false
 )
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(
+    private val repository: ProductoRepository = ProductoRepository()
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUIState())
     val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
 
-    private val repository = ProductoRepository()
     private var productosOriginales: List<Producto> = emptyList()
 
     init {

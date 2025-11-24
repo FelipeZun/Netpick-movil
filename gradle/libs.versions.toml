@@ -16,6 +16,7 @@ gson = "2.10.1"
 kotest = "5.8.0"
 mockk = "1.13.9"
 coroutinesTest = "1.7.3"
+firebaseAuthKtx = "24.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -44,6 +45,7 @@ kotest-assertions = { group = "io.kotest", name = "kotest-assertions-core", vers
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
+firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

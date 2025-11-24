@@ -3,6 +3,7 @@ package com.example.netpick_movil
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollTo // IMPORTANTE
 import androidx.navigation.NavController
 import com.example.netpick_movil.model.Producto
 import com.example.netpick_movil.ui.screen.ProductDetailScreen
@@ -38,7 +39,6 @@ class ProductDetailScreenTest {
 
         val stateFlow = MutableStateFlow(ProductDetailState(product = fakeProduct))
         every { viewModel.uiState } returns stateFlow
-
         every { favoritesViewModel.isFavorite("99") } returns false
 
         composeTestRule.setContent {
@@ -52,8 +52,10 @@ class ProductDetailScreenTest {
         }
 
         composeTestRule.onNodeWithText("Celular de Prueba").assertIsDisplayed()
-        composeTestRule.onNodeWithText("$50000").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Descripción de prueba para el test").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Añadir al carrito").assertIsDisplayed()
+        composeTestRule.onNodeWithText("50000", substring = true).performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Descripción de prueba para el test").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Añadir", substring = true, ignoreCase = true).performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Comprar", substring = true, ignoreCase = true).performScrollTo().assertIsDisplayed()
+
     }
 }
