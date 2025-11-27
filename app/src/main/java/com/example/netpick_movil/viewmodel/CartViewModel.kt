@@ -14,7 +14,7 @@ class CartViewModel : ViewModel() {
     fun addToCart(product: Producto, quantity: Int) {
         _uiState.update { currentState ->
             val cartItems = currentState.cartItems.toMutableList()
-            val existingItem = cartItems.find { it.product.id == product.id }
+            val existingItem = cartItems.find { it.product.idProducto == product.idProducto }
 
             if (existingItem != null) {
                 val updatedItem = existingItem.copy(quantity = existingItem.quantity + quantity)
@@ -29,10 +29,10 @@ class CartViewModel : ViewModel() {
         }
     }
 
-    fun updateQuantity(productId: String, newQuantity: Int) {
+    fun updateQuantity(productId: Int, newQuantity: Int) {
         _uiState.update { currentState ->
             val cartItems = currentState.cartItems.toMutableList()
-            val existingItem = cartItems.find { it.product.id == productId }
+            val existingItem = cartItems.find { it.product.idProducto == productId }
 
             if (existingItem != null) {
                 if (newQuantity > 0) {
@@ -49,15 +49,15 @@ class CartViewModel : ViewModel() {
         }
     }
 
-    fun removeFromCart(productId: String) {
+    fun removeFromCart(productId: Int) {
         _uiState.update { currentState ->
             val cartItems = currentState.cartItems.toMutableList()
-            val itemToRemove = cartItems.find { it.product.id == productId }
+            val itemToRemove = cartItems.find { it.product.idProducto == productId }
             if (itemToRemove != null) {
                 cartItems.remove(itemToRemove)
             }
 
-            val newTotalPrice = calculateTotalPrice(cartItems)
+            val newTotalPrice: Double = calculateTotalPrice(cartItems)
             currentState.copy(cartItems = cartItems, totalPrice = newTotalPrice)
         }
     }
@@ -69,7 +69,7 @@ class CartViewModel : ViewModel() {
     }
 
     private fun calculateTotalPrice(cartItems: List<CartItem>): Double {
-        return cartItems.sumOf { it.product.precio * it.quantity }
+        return cartItems.sumOf { (it.product.precio * it.quantity).toDouble() }
     }
 }
 

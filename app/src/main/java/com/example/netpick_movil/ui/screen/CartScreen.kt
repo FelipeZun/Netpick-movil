@@ -72,10 +72,10 @@ fun CartScreen(
                         product = cartItem.product,
                         quantity = cartItem.quantity,
                         onQuantityChange = { newQuantity ->
-                            viewModel.updateQuantity(cartItem.product.id, newQuantity)
+                            viewModel.updateQuantity(cartItem.product.idProducto, newQuantity)
                         },
                         onRemove = {
-                            viewModel.removeFromCart(cartItem.product.id)
+                            viewModel.removeFromCart(cartItem.product.idProducto)
                         },
                         navController = navController
                     )
@@ -128,7 +128,7 @@ fun CartItemCard(
 ) {
     Card(
         modifier = modifier.clickable {
-            navController.navigate(Screen.ProductDetail.createRoute(product.id))
+            navController.navigate(Screen.ProductDetail.createRoute(product.idProducto!!))
         }
     ) {
         Row(
@@ -137,21 +137,29 @@ fun CartItemCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val imageUrl = product.linkImagen?.firstOrNull() ?: "https://via.placeholder.com/80"
+
             AsyncImage(
-                model = product.imageUrls.firstOrNull(),
+                model = imageUrl,
                 contentDescription = null,
                 modifier = Modifier
                     .height(80.dp)
                     .weight(0.3f),
                 contentScale = ContentScale.Crop
             )
+
             Column(
                 modifier = Modifier
                     .weight(0.7f)
                     .padding(start = 16.dp)
             ) {
-                Text(text = product.nombre, fontWeight = FontWeight.Bold)
-                Text(text = "$${product.precio}")
+                Text(
+                    text = product.nombre ?: "Producto Desconocido",
+                    fontWeight = FontWeight.Bold
+                )
+
+
+                Text(text = String.format("$%d", product.precio))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,

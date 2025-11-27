@@ -4,12 +4,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.netpick_movil.data.remote.dao.UsuarioDao
 
-class UsuarioViewModelFactory(private val dao: UsuarioDao) : ViewModelProvider.Factory {
+class UsuarioViewModelFactory(
+    private val dao: UsuarioDao,
+    private val correoUsuario: String? = null
+) : ViewModelProvider.Factory {
+
+    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(UsuarioViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return UsuarioViewModel(dao) as T
+            val viewModel = UsuarioViewModel(dao)
+            correoUsuario?.let { viewModel.cargarUsuarioPorCorreo(it) }
+            return viewModel as T
         }
-        throw IllegalArgumentException("Clase ViewModel desconocida")
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

@@ -1,11 +1,12 @@
-package com.example.netpick_movil.model
-
-import com.google.gson.annotations.SerializedName
+package com.example.netpick_movil.model;
 
 data class Producto(
-    @SerializedName("id") val id: String,
-    @SerializedName("nombre") val nombre: String,
-    @SerializedName("precio") val precio: Double,
-    @SerializedName("imageUrls") val imageUrls: List<String>,
-    @SerializedName("description") val description: String
+    val idProducto: Int,
+    val nombre: String?,
+    val descripcion: String?,
+    val precio: Int,
+    val stock: Int,
+    val linkImagen: String?,
+    val categoria: Categoria?
+
 )

@@ -52,7 +52,7 @@ fun FavoritesScreen(
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { navController.navigate(Screen.Home.route) }) {
+                Button(onClick = { navController.popBackStack() }) {
                     Text("Explorar productos")
                 }
             }
@@ -84,9 +84,9 @@ fun FavoriteProductCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable {
-                navController.navigate(Screen.ProductDetail.createRoute(product.id))
-            }
+            .clickable(enabled = product.idProducto != null) {
+            },
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
             modifier = Modifier
@@ -94,9 +94,11 @@ fun FavoriteProductCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val imageUrl = product.linkImagen ?: "https://via.placeholder.com/80"
+
             AsyncImage(
-                model = product.imageUrls.firstOrNull(),
-                contentDescription = null,
+                model = imageUrl,
+                contentDescription = product.nombre,
                 modifier = Modifier
                     .size(80.dp)
                     .padding(end = 16.dp),
@@ -105,14 +107,21 @@ fun FavoriteProductCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = product.nombre,
+                    text = product.nombre ?: "Producto Desconocido",
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 2
                 )
+
+                val precioDouble = product.precio?.toDouble() ?: 0.0
+                val displayPrice = String.format("$%.2f", precioDouble)
+
                 Text(
-                    text = "$${product.precio}",
-                    style = MaterialTheme.typography.bodyLarge
+                    text = displayPrice,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.primary
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
 
                 OutlinedButton(

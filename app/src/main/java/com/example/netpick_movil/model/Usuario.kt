@@ -9,5 +9,7 @@ data class Usuario(
     val nombre: String,
     val correo: String,
     val clave: String,
-    val direccion: String
+    val direccion: String,
+    val telefono: String,
+    val rol: String
 )

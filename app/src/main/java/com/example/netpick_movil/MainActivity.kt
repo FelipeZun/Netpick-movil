@@ -16,10 +16,11 @@ import androidx.navigation.compose.rememberNavController
 import com.example.netpick_movil.navigation.AppNavigation
 import com.example.netpick_movil.ui.screen.HomeScreen
 import com.example.netpick_movil.ui.theme.NetpickMovilTheme
-import com.example.netpick_movil.viewmodel.LoginViewModel
-import com.example.netpick_movil.viewmodel.LoginViewModelFactory
+import com.example.netpick_movil.viewmodel.AuthViewModel
+import com.example.netpick_movil.viewmodel.AuthViewModelFactory
 import com.example.netpick_movil.viewmodel.UsuarioViewModel
 import com.example.netpick_movil.viewmodel.UsuarioViewModelFactory
+import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,24 +29,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             NetpickMovilTheme {
                 AppNavigation(modifier = Modifier.fillMaxSize())
+                FirebaseApp.initializeApp(this)
+
             }
         }
     }
-}
-
-@Composable
-fun loginViewModel(): LoginViewModel {
-    val context = LocalContext.current
-    val database = remember { AppDatabase.getInstance(context) }
-    val factory = remember { LoginViewModelFactory(database.usuarioDao()) }
-    return viewModel(factory = factory)
-}
-@Composable
-fun usuarioViewModel(): UsuarioViewModel {
-    val context = LocalContext.current
-    val database = remember { AppDatabase.getInstance(context) }
-    val factory = remember { UsuarioViewModelFactory(database.usuarioDao()) }
-    return viewModel(factory = factory)
 }
 
 @Preview(showBackground = true)

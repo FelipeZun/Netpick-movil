@@ -14,8 +14,8 @@ class FavoritesViewModel : ViewModel() {
     fun toggleFavorite(product: Producto) {
         _uiState.update { currentState ->
             val favoriteProducts = currentState.favoriteProducts.toMutableList()
-            if (favoriteProducts.any { it.id == product.id }) {
-                favoriteProducts.removeAll { it.id == product.id }
+            if (favoriteProducts.any { it.idProducto == product.idProducto }) {
+                favoriteProducts.removeAll { it.idProducto == product.idProducto }
             } else {
                 favoriteProducts.add(product)
             }
@@ -23,11 +23,10 @@ class FavoritesViewModel : ViewModel() {
         }
     }
 
-    fun isFavorite(productId: String): Boolean {
-        return _uiState.value.favoriteProducts.any { it.id == productId }
+    fun isFavorite(productId: Int): Boolean {
+        return _uiState.value.favoriteProducts.any { it.idProducto == productId }
     }
 }
 
 data class FavoritesUiState(
-    val favoriteProducts: List<com.example.netpick_movil.model.Producto> = emptyList()
-)
+    val favoriteProducts: List<com.example.netpick_movil.model.Producto> = emptyList())

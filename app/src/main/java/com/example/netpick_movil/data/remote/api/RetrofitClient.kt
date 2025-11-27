@@ -2,9 +2,10 @@ package com.example.netpick_movil.data.remote.api
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+// Asegúrate de importar ApiService
 
 object RetrofitClient {
-    private const val BASE_URL = "https://"
+    private const val BASE_URL = "https://netpick-backend.onrender.com/api/v1/"
 
     val apiService: ApiService by lazy {
         Retrofit.Builder()
@@ -12,5 +13,16 @@ object RetrofitClient {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)
+    }
+
+    val retrofitInstance: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    val authApi: AuthApi by lazy {
+        retrofitInstance.create(AuthApi::class.java)
     }
 }

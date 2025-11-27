@@ -1,9 +1,10 @@
 package com.example.netpick_movil
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performScrollTo // IMPORTANTE
+import androidx.compose.ui.test.performScrollTo
 import androidx.navigation.NavController
 import com.example.netpick_movil.model.Producto
 import com.example.netpick_movil.ui.screen.ProductDetailScreen

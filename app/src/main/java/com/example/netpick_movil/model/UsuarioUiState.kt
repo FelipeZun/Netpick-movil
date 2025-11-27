@@ -7,6 +7,8 @@ data class UsuarioUIState (
     val correo: String = "",
     val clave: String = "",
     val direccion: String = "",
+    val telefono: String = "",
     val aceptaTerminos: Boolean = false,
-    val errores: UsuarioErrores = UsuarioErrores()
+    val errores: UsuarioErrores = UsuarioErrores(),
+    val registroExitoso: Boolean = false
 )

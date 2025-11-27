@@ -2,7 +2,7 @@ package com.example.netpick_movil.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.netpick_movil.data.repository.ProductoRepository
+import com.example.netpick_movil.data.remote.api.ApiService
 import com.example.netpick_movil.model.Producto
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,36 +14,38 @@ data class HomeUIState(
     val searchQuery: String = "",
     val productos: List<Producto> = emptyList(),
     val productosFiltrados: List<Producto> = emptyList(),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val error: String? = null
 )
 
-class HomeViewModel(
-    private val repository: ProductoRepository = ProductoRepository()
-) : ViewModel() {
+class HomeViewModel(private val apiService: ApiService) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUIState())
     val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
 
-    private var productosOriginales: List<Producto> = emptyList()
-
     init {
-        fetchProductos()
+        obtenerProductos()
     }
 
-    private fun fetchProductos() {
+    fun obtenerProductos() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-
-            val productosApi = repository.obtenerProductos()
-
-            productosOriginales = productosApi
-
-            _uiState.update {
-                it.copy(
-                    productos = productosOriginales,
-                    productosFiltrados = productosOriginales,
-                    isLoading = false
-                )
+            try {
+                val response = apiService.listarProductos()
+                if (response.isSuccessful) {
+                    val productos = response.body() ?: emptyList()
+                    _uiState.update {
+                        it.copy(
+                            productos = productos,
+                            productosFiltrados = productos,
+                            isLoading = false
+                        )
+                    }
+                } else {
+                    _uiState.update { it.copy(isLoading = false, error = "Error ${response.code()}") }
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoading = false, error = e.localizedMessage) }
             }
         }
     }
@@ -51,24 +53,17 @@ class HomeViewModel(
     fun onSearchQueryChanged(query: String) {
         _uiState.update { currentState ->
             val productosFiltrados = if (query.isBlank()) {
-                productosOriginales
+                currentState.productos
             } else {
-                filtrarProductos(query, productosOriginales)
+                currentState.productos.filter { producto ->
+                    (producto.nombre ?: "").contains(query, ignoreCase = true) ||
+                            (producto.descripcion ?: "").contains(query, ignoreCase = true)
+                }
             }
-
             currentState.copy(
                 searchQuery = query,
                 productosFiltrados = productosFiltrados
             )
-        }
-    }
-
-    private fun filtrarProductos(query: String, productos: List<Producto>): List<Producto> {
-        val queryLowercase = query.lowercase().trim()
-
-        return productos.filter { producto ->
-            producto.nombre.lowercase().contains(queryLowercase) ||
-                    producto.description.lowercase().contains(queryLowercase)
         }
     }
 }

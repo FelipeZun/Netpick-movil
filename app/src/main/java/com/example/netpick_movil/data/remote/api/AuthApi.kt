@@ -11,24 +11,12 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import com.example.netpick_movil.model.RegisterRequest;
 
-interface ApiService {
+interface AuthApi {
+    @POST("auth/register")
+    suspend fun register(@Body request: RegisterRequest): Response<Unit>
 
     @POST("auth/login")
-    suspend fun login(@Body loginReq: LoginRequest): Response<LoginResponse>
-
-    @GET("producto")
-    suspend fun listarProductos(): Response<List<Producto>>
-    @GET("usuarios/{id}")
-    suspend fun getUsuario(
-        @Path("id") id: Int
-    ): Response<Usuario>
-
-    @GET("direcciones/{id}")
-    suspend fun getDireccion(
-        @Path("id") id: Int
-    ): Response<Direccion>
-
-    @GET("producto/{id}")
-    suspend fun getProducto(@Path("id") id: Int): Response<Producto>
+    suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 }
