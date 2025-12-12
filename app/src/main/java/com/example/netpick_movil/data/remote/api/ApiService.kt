@@ -1,5 +1,6 @@
 package com.example.netpick_movil.data.remote.api
 
+import com.example.netpick_movil.model.Categoria
 import com.example.netpick_movil.model.Direccion
 import com.example.netpick_movil.model.LoginRequest
 import com.example.netpick_movil.model.LoginResponse
@@ -31,4 +32,10 @@ interface ApiService {
 
     @GET("producto/{id}")
     suspend fun getProducto(@Path("id") id: Int): Response<Producto>
+
+    @GET("categoria")
+    suspend fun listarCategorias(): Response<List<Categoria>>
+
+    @GET("producto/categoria/{id}")
+    suspend fun listarProductosPorCategoria(@Path("id") id: Int): Response<List<Producto>>
 }

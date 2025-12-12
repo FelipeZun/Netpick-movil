@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -18,106 +20,67 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.netpick_movil.data.remote.api.RetrofitClient
+import com.example.netpick_movil.data.repository.CategoryRepository
+import com.example.netpick_movil.model.Categoria
 import com.example.netpick_movil.model.Producto
+import com.example.netpick_movil.viewmodel.CategoryViewModel
+import com.example.netpick_movil.viewmodel.CategoryViewModelFactory
 import com.example.netpick_movil.viewmodel.HomeViewModel
 
 @Composable
-fun CategoriesScreen(
-    navController: NavController,
-    modifier: Modifier = Modifier,
+fun CategoriesScreen(navController: NavController) {
+    println("DEBUG: Entré a CategoriesScreen")
+    val repository = remember { CategoryRepository(RetrofitClient.apiService) }
+    val factory = remember { CategoryViewModelFactory(repository) }
+    val viewModel: CategoryViewModel = viewModel(factory = factory)
 
-    viewModel: HomeViewModel = getHomeViewModel()
-) {
     val uiState by viewModel.uiState.collectAsState()
-    var selectedCategory by remember { mutableStateOf("Todas") }
 
-    val dynamicCategories = remember(uiState.productos) {
-        val catNames = uiState.productos
-            .mapNotNull { it.categoria?.nombre }
-            .distinct()
-            .sorted()
-        listOf("Todas") + catNames
+    LaunchedEffect(Unit) {
+        viewModel.loadCategorias()
+        println("DEBUG_CATEGORIES: ${viewModel.uiState.value.categorias}")
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Text(
+            text = "Categorías",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(16.dp)
+        )
+
+        if (uiState.isLoading) {
+            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+        } else if (uiState.error != null) {
             Text(
-                text = "Categorías",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(bottom = 16.dp)
+                text = "Error: ${uiState.error}",
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(16.dp)
             )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(150.dp),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-
-                dynamicCategories.take(4).forEach { category ->
-                    Button(
-                        onClick = { selectedCategory = category },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (selectedCategory == category) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-                        )
-                    ) {
-                        Text(
-                            text = category,
-                            style = MaterialTheme.typography.bodySmall,
-                            maxLines = 1
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            TextField(
-                value = uiState.searchQuery,
-                onValueChange = { viewModel.onSearchQueryChanged(it) },
-                label = { Text("Buscar producto") },
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        when {
-            uiState.isLoading -> {
-                CircularProgressIndicator(modifier = Modifier.padding(16.dp))
-            }
-            uiState.error != null -> {
-                Text(
-                    text = "Error: ${uiState.error}",
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(16.dp)
-                )
-                Button(onClick = { viewModel.obtenerProductos() }, modifier = Modifier.padding(16.dp)) {
-                    Text("Reintentar")
-                }
-            }
-            else -> {
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 150.dp),
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-
-                    val categoryFiltered = if (selectedCategory == "Todas") {
-                        uiState.productosFiltrados
-                    } else {
-                        uiState.productosFiltrados.filter {
-                            it.categoria?.nombre.equals(selectedCategory, ignoreCase = true)
+                items(uiState.categorias) { categoria ->
+                    CategoryCard(
+                        category = categoria,
+                        onClick = {
+                            val encodedName = URLEncoder.encode(
+                                categoria.nombre ?: "Categoría",
+                                StandardCharsets.UTF_8.toString()
+                            )
+                            navController.navigate("category/${categoria.idCategoria}?name=$encodedName")
                         }
-                    }
-
-                    items(categoryFiltered) { product ->
-                        ProductCard(navController = navController, product = product)
-                    }
+                    )
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun ProductCard(navController: NavController, product: Producto) {
@@ -125,11 +88,11 @@ fun ProductCard(navController: NavController, product: Producto) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
+                navController.navigate("product_detail/${product.idProducto}")
             },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
-            // Imagen del producto
             AsyncImage(
                 model = product.linkImagen ?: "https://via.placeholder.com/150",
                 contentDescription = product.nombre,
@@ -178,4 +141,22 @@ fun getHomeViewModel(): HomeViewModel {
         }
     }
     return viewModel(factory = factory)
+}
+
+@Composable
+fun CategoryCard(category: Categoria, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(
+                text = category.nombre ?: "Categoría",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
 }

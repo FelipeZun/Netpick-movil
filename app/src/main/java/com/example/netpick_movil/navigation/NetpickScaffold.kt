@@ -47,7 +47,8 @@ fun NetpickScaffold(
                         icon = { },
                         label = { Text("Categorías") },
                         selected = currentRoute == Screen.Categories.route,
-                        onClick = { onNavigationItemClick(Screen.Categories.route) }
+                        onClick = { onNavigationItemClick(Screen.Categories.route)
+                            println("NAV CLICK: ${Screen.Categories.route}")}
                     )
                     NavigationBarItem(
                         icon = { },

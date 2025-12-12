@@ -2,56 +2,48 @@ package com.example.netpick_movil.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.netpick_movil.data.repository.ProductoRepository
+import com.example.netpick_movil.data.remote.api.ApiService
 import com.example.netpick_movil.model.Producto
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-data class ProductDetailState(
+data class ProductDetailUIState(
     val product: Producto? = null,
-    val quantity: Int = 1,
     val isLoading: Boolean = false,
     val errorMessage: String? = null
 )
 
-class ProductDetailViewModel(
-    private val repository: ProductoRepository
-) : ViewModel() {
+class ProductDetailViewModel(private val apiService: ApiService) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ProductDetailState())
-    val uiState: StateFlow<ProductDetailState> = _uiState
+    private val _uiState = MutableStateFlow(ProductDetailUIState())
+    val uiState: StateFlow<ProductDetailUIState> = _uiState
+
     fun loadProduct(productId: Int) {
         viewModelScope.launch {
-            if (_uiState.value.product?.idProducto == productId) {
-                return@launch
-            }
-
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            _uiState.value = ProductDetailUIState(isLoading = true)
 
             try {
-                val product = repository.obtenerProducto(productId)
+                val response = apiService.getProducto(productId)
 
-                _uiState.update {
-                    it.copy(
-                        product = product,
+                if (response.isSuccessful) {
+                    _uiState.value = ProductDetailUIState(
+                        product = response.body(),
                         isLoading = false
+                    )
+                } else {
+                    _uiState.value = ProductDetailUIState(
+                        isLoading = false,
+                        errorMessage = "Error ${response.code()}"
                     )
                 }
 
             } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = e.message ?: "Error al cargar el producto $productId"
-                    )
-                }
+                _uiState.value = ProductDetailUIState(
+                    isLoading = false,
+                    errorMessage = e.localizedMessage ?: "Error desconocido"
+                )
             }
         }
-    }
-
-    fun onQuantityChanged(newValue: Int) {
-        _uiState.update { it.copy(quantity = newValue) }
     }
 }

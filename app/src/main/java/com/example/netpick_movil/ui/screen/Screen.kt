@@ -15,4 +15,8 @@ sealed class Screen(val route: String) {
     object Cart : Screen("cart")
     object Confirmation : Screen("confirmation")
 
+    object CategoryDetail : Screen("category_detail/{categoryName}") {
+        fun createRoute(categoryName: String) = "category_detail/$categoryName"
+    }
+
 }

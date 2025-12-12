@@ -62,7 +62,9 @@ fun FavoritesScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(uiState.favoriteProducts) { product ->
+                val safeProducts = uiState.favoriteProducts.filter { it.idProducto != null }
+
+                items(safeProducts) { product ->
                     FavoriteProductCard(
                         navController = navController,
                         product = product,
@@ -81,10 +83,15 @@ fun FavoriteProductCard(
     viewModel: FavoritesViewModel,
     modifier: Modifier = Modifier
 ) {
+    val productId = product.idProducto
+
+    if (productId == null) return
+
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(enabled = product.idProducto != null) {
+            .clickable {
+                navController.navigate("product_detail/$productId")
             },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -94,7 +101,11 @@ fun FavoriteProductCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val imageUrl = product.linkImagen ?: "https://via.placeholder.com/80"
+            val imageUrl = when (val imageLink = product.linkImagen) {
+                is String -> imageLink
+                is List<*> -> imageLink.firstOrNull()?.toString()
+                else -> "https://via.placeholder.com/80"
+            }
 
             AsyncImage(
                 model = imageUrl,
@@ -113,11 +124,11 @@ fun FavoriteProductCard(
                     maxLines = 2
                 )
 
-                val precioDouble = product.precio?.toDouble() ?: 0.0
-                val displayPrice = String.format("$%.2f", precioDouble)
+                val price = product.precio
+                val formattedPrice = String.format("$%d", price)
 
                 Text(
-                    text = displayPrice,
+                    text = formattedPrice,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.primary
                 )

@@ -1,11 +1,6 @@
 package com.example.netpick_movil.navigation
 
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -16,16 +11,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.netpick_movil.data.local.AppDatabase
-import com.example.netpick_movil.ui.screen.*
-import com.example.netpick_movil.viewmodel.AuthViewModel
-import com.example.netpick_movil.viewmodel.AuthViewModelFactory
-import com.example.netpick_movil.viewmodel.CartViewModel
-import com.example.netpick_movil.viewmodel.FavoritesViewModel
-import com.example.netpick_movil.viewmodel.ProductDetailViewModel
+import com.example.netpick_movil.data.remote.api.RetrofitClient
+import com.example.netpick_movil.data.repository.CategoryRepository
 import com.example.netpick_movil.data.repository.ProductoRepository
-import com.example.netpick_movil.viewmodel.ProductDetailViewModelFactory
-import com.example.netpick_movil.viewmodel.UsuarioViewModel
-import com.example.netpick_movil.viewmodel.UsuarioViewModelFactory
+import com.example.netpick_movil.ui.screen.*
+import com.example.netpick_movil.viewmodel.*
 
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier) {
@@ -33,16 +23,14 @@ fun AppNavigation(modifier: Modifier = Modifier) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val context = LocalContext.current
-    val dao = AppDatabase.getInstance(context).usuarioDao()
 
+    val apiService = RetrofitClient.apiService
     val cartViewModel: CartViewModel = viewModel()
     val favoritesViewModel: FavoritesViewModel = viewModel()
-
     val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory.Factory)
     val authState by authViewModel.uiState.collectAsState()
 
-    val productoRepository = ProductoRepository()
-    val productDetailFactory = ProductDetailViewModelFactory(productoRepository)
+    val productDetailFactory = ProductDetailViewModelFactory(apiService = apiService)
 
     val startDestination = remember(authState.usuarioLogueado) {
         if (authState.usuarioLogueado != null) Screen.Home.route else Screen.Login.route
@@ -56,7 +44,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 restoreState = true
             }
         }
-    ) { innerPadding ->
+    ) {
         NavHost(
             navController = navController,
             startDestination = startDestination,
@@ -66,17 +54,17 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 AuthScreen(navController = navController, authViewModel = authViewModel)
             }
 
-            composable(Screen.Home.route) {
-                HomeScreen(navController = navController)
+            composable(Screen.UserForm.route) {
+                UserFormScreen(onRegisterSuccess = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.UserForm.route) { inclusive = true }
+                    }
+                })
             }
 
             composable(Screen.Profile.route) {
-
-                val context = LocalContext.current
                 val dao = AppDatabase.getInstance(context).usuarioDao()
-
                 val correoUsuario = authState.usuarioLogueado?.correo ?: ""
-
                 ProfileScreen(
                     navController = navController,
                     dao = dao,
@@ -90,31 +78,20 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 )
             }
 
-
-            composable(Screen.UserForm.route) {
-                UserFormScreen(onRegisterSuccess = {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.UserForm.route) { inclusive = true }
-                    }
-                })
+            composable(Screen.Home.route) {
+                HomeScreen(navController = navController)
             }
 
             composable(Screen.Categories.route) {
-                Text("Categorías - En desarrollo")
+                CategoriesScreen(navController = navController)
             }
 
             composable(Screen.Favorites.route) {
-                FavoritesScreen(
-                    navController = navController,
-                    viewModel = favoritesViewModel
-                )
+                FavoritesScreen(navController = navController, viewModel = favoritesViewModel)
             }
 
             composable(Screen.Cart.route) {
-                CartScreen(
-                    navController = navController,
-                    viewModel = cartViewModel
-                )
+                CartScreen(navController = navController, viewModel = cartViewModel)
             }
 
             composable(Screen.Confirmation.route) {
@@ -125,10 +102,9 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 route = Screen.ProductDetail.route,
                 arguments = listOf(navArgument("productId") { type = NavType.IntType })
             ) { backStackEntry ->
+                val productId = backStackEntry.arguments?.getInt("productId") ?: 0
                 val productDetailViewModel: ProductDetailViewModel =
                     viewModel(factory = productDetailFactory)
-
-                val productId = backStackEntry.arguments?.getInt("productId") ?: 0
 
                 LaunchedEffect(productId) {
                     productDetailViewModel.loadProduct(productId)
@@ -140,6 +116,23 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                     productId = productId,
                     cartViewModel = cartViewModel,
                     favoritesViewModel = favoritesViewModel
+                )
+            }
+
+            composable(
+                route = "category/{categoryId}?name={categoryName}",
+                arguments = listOf(
+                    navArgument("categoryId") { type = NavType.IntType },
+                    navArgument("categoryName") { type = NavType.StringType; defaultValue = "Categoría" }
+                )
+            ) { backStackEntry ->
+                val categoryId = backStackEntry.arguments?.getInt("categoryId") ?: 0
+                val categoryName = backStackEntry.arguments?.getString("categoryName") ?: "Categoría"
+
+                CategoryDetailScreen(
+                    navController = navController,
+                    categoryId = categoryId,
+                    categoryName = categoryName
                 )
             }
         }

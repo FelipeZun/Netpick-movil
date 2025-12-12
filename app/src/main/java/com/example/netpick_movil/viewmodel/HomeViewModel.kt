@@ -24,16 +24,29 @@ class HomeViewModel(private val apiService: ApiService) : ViewModel() {
     val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
 
     init {
+        println("DEBUG_VM: HomeViewModel inicializado")
         obtenerProductos()
     }
 
     fun obtenerProductos() {
+        println("DEBUG_API: Iniciando petición de productos...")
+
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
+
             try {
                 val response = apiService.listarProductos()
+
+                println("DEBUG_API: Código de respuesta = ${response.code()}")
+
                 if (response.isSuccessful) {
                     val productos = response.body() ?: emptyList()
+
+                    println("DEBUG_API: Productos recibidos (${productos.size}) =")
+                    productos.forEach { p ->
+                        println("  -> ID=${p.idProducto}, Nombre=${p.nombre}")
+                    }
+
                     _uiState.update {
                         it.copy(
                             productos = productos,
@@ -42,24 +55,46 @@ class HomeViewModel(private val apiService: ApiService) : ViewModel() {
                         )
                     }
                 } else {
-                    _uiState.update { it.copy(isLoading = false, error = "Error ${response.code()}") }
+                    println("DEBUG_API_ERROR: Error en la API = ${response.code()}")
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            error = "Error ${response.code()}"
+                        )
+                    }
                 }
+
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false, error = e.localizedMessage) }
+                println("DEBUG_EXCEPTION: Excepción al obtener productos = ${e.message}")
+
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = e.localizedMessage
+                    )
+                }
             }
         }
     }
 
     fun onSearchQueryChanged(query: String) {
+        println("DEBUG_SEARCH: Query nueva = $query")
+
         _uiState.update { currentState ->
             val productosFiltrados = if (query.isBlank()) {
+                println("DEBUG_SEARCH: Query vacía → mostrando todos")
                 currentState.productos
             } else {
-                currentState.productos.filter { producto ->
+                val filtrados = currentState.productos.filter { producto ->
                     (producto.nombre ?: "").contains(query, ignoreCase = true) ||
                             (producto.descripcion ?: "").contains(query, ignoreCase = true)
                 }
+
+                println("DEBUG_SEARCH: ${filtrados.size} resultados encontrados")
+
+                filtrados
             }
+
             currentState.copy(
                 searchQuery = query,
                 productosFiltrados = productosFiltrados

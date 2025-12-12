@@ -58,20 +58,29 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(8.dp))
         }
 
-        if (uiState.isLoading) {
-            Text("Cargando productos...", modifier = Modifier.padding(16.dp))
-        } else if (uiState.error != null) {
-            Text("Error al cargar: ${uiState.error}", modifier = Modifier.padding(16.dp))
-        } else {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 128.dp),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(productos) { product ->
-                    ProductCard(navController = navController, product = product)
+        when {
+            uiState.isLoading -> {
+                Text("Cargando productos...", modifier = Modifier.padding(16.dp))
+            }
+
+            uiState.error != null -> {
+                Text("Error al cargar: ${uiState.error}", modifier = Modifier.padding(16.dp))
+            }
+
+            else -> {
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = 128.dp),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(productos) { product ->
+                        ProductCard(
+                            navController = navController,
+                            product = product
+                        )
+                    }
                 }
             }
         }
@@ -85,31 +94,30 @@ fun ProductCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.clickable(enabled = product.idProducto != null) {
-            navController.navigate(Screen.ProductDetail.createRoute(product.idProducto!!))
+        modifier = modifier.clickable {
+            navController.navigate(Screen.ProductDetail.createRoute(product.idProducto))
         }
     ) {
         Column {
-            val imageUrl = product.linkImagen?.firstOrNull() ?: "https://via.placeholder.com/300"
+            val imageUrl = product.linkImagen ?: "https://via.placeholder.com/300"
 
             AsyncImage(
                 model = imageUrl,
                 contentDescription = null,
-                modifier = Modifier.fillMaxWidth().height(128.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(128.dp),
                 contentScale = ContentScale.Crop
             )
 
             Column(modifier = Modifier.padding(8.dp)) {
-                val safeTitle = product.nombre ?: "Producto sin nombre"
                 Text(
-                    text = safeTitle,
+                    text = product.nombre ?: "Producto",
                     fontWeight = FontWeight.Bold
                 )
 
-                val priceValue = product.precio ?: 0.0
-                val displayPrice = String.format("$%.2f", priceValue.toDouble())
                 Text(
-                    text = displayPrice,
+                    text = "$${product.precio}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
