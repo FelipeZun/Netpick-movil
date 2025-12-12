@@ -1,8 +1,10 @@
 package com.example.netpick_movil.navigation
 
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -11,10 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import com.example.netpick_movil.R
 import com.example.netpick_movil.ui.screen.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -22,7 +20,7 @@ import com.example.netpick_movil.ui.screen.Screen
 fun NetpickScaffold(
     currentRoute: String?,
     onNavigationItemClick: (String) -> Unit,
-    content: @Composable (androidx.compose.foundation.layout.PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -31,12 +29,15 @@ fun NetpickScaffold(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
-                )
+                ),
+                windowInsets = WindowInsets.statusBars
             )
         },
         bottomBar = {
             if (shouldShowBottomBar(currentRoute)) {
-                NavigationBar {
+                NavigationBar(
+                    windowInsets = WindowInsets.navigationBars
+                ) {
                     NavigationBarItem(
                         icon = { },
                         label = { Text("Inicio") },
@@ -47,8 +48,7 @@ fun NetpickScaffold(
                         icon = { },
                         label = { Text("Categorías") },
                         selected = currentRoute == Screen.Categories.route,
-                        onClick = { onNavigationItemClick(Screen.Categories.route)
-                            println("NAV CLICK: ${Screen.Categories.route}")}
+                        onClick = { onNavigationItemClick(Screen.Categories.route) }
                     )
                     NavigationBarItem(
                         icon = { },

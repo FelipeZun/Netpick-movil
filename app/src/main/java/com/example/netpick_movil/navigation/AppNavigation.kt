@@ -1,5 +1,6 @@
 package com.example.netpick_movil.navigation
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -44,11 +45,11 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 restoreState = true
             }
         }
-    ) {
+    ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = startDestination,
-            modifier = modifier
+            modifier = modifier.padding(innerPadding)
         ) {
             composable(Screen.Login.route) {
                 AuthScreen(navController = navController, authViewModel = authViewModel)
@@ -63,12 +64,11 @@ fun AppNavigation(modifier: Modifier = Modifier) {
             }
 
             composable(Screen.Profile.route) {
-                val dao = AppDatabase.getInstance(context).usuarioDao()
-                val correoUsuario = authState.usuarioLogueado?.correo ?: ""
+                val usuarioLogueado = authState.usuarioLogueado
+
                 ProfileScreen(
                     navController = navController,
-                    dao = dao,
-                    correoUsuario = correoUsuario,
+                    usuario = usuarioLogueado,
                     onLogout = {
                         authViewModel.logout()
                         navController.navigate(Screen.Login.route) {

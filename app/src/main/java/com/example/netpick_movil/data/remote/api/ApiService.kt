@@ -20,6 +20,7 @@ interface ApiService {
 
     @GET("producto")
     suspend fun listarProductos(): Response<List<Producto>>
+
     @GET("usuarios/{id}")
     suspend fun getUsuario(
         @Path("id") id: Int
@@ -36,6 +37,6 @@ interface ApiService {
     @GET("categoria")
     suspend fun listarCategorias(): Response<List<Categoria>>
 
-    @GET("producto/categoria/{id}")
-    suspend fun listarProductosPorCategoria(@Path("id") id: Int): Response<List<Producto>>
+    @GET("producto")
+    suspend fun obtenerTodosLosProductos(): Response<List<Producto>>
 }
