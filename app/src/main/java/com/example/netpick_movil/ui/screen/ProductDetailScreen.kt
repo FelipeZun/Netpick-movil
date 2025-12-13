@@ -2,6 +2,8 @@ package com.example.netpick_movil.ui.screen
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState // Importante
+import androidx.compose.foundation.verticalScroll // Importante
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -18,6 +20,7 @@ import coil.compose.AsyncImage
 import com.example.netpick_movil.viewmodel.ProductDetailViewModel
 import com.example.netpick_movil.viewmodel.CartViewModel
 import com.example.netpick_movil.viewmodel.FavoritesViewModel
+import com.example.netpick_movil.ui.screen.Screen
 
 @Composable
 fun ProductDetailScreen(
@@ -71,7 +74,11 @@ fun ProductDetailScreen(
 
     val imageUrl = product.linkImagen ?: "https://via.placeholder.com/300"
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
 
         AsyncImage(
             model = imageUrl,
@@ -122,6 +129,12 @@ fun ProductDetailScreen(
                 text = "$${product.precio}",
                 style = MaterialTheme.typography.headlineSmall
             )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = product.descripcion ?: "",
+                style = MaterialTheme.typography.bodyMedium
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -135,7 +148,7 @@ fun ProductDetailScreen(
                 ) {
                     Icon(Icons.Default.ShoppingCart, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Añadir 1 Unidad")
+                    Text("Añadir 1 Unidad") // Cambiado para coincidir con tu test
                 }
 
                 Button(
@@ -145,6 +158,7 @@ fun ProductDetailScreen(
                     Text("Comprar ahora")
                 }
             }
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

@@ -1,73 +1,126 @@
-package com.example.netpick_movil
+package com.example.netpick_movil.viewmodel
 
 import com.example.netpick_movil.model.Producto
-import com.example.netpick_movil.viewmodel.CartViewModel
+import io.mockk.every
+import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Rule
+import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class CartViewModelTest {
 
-    @get:Rule
-    val mainDispatcherRule = MainDispatcherRule()
+    private lateinit var viewModel: CartViewModel
+    private val testDispatcher = StandardTestDispatcher()
 
-    private val viewModel = CartViewModel()
+    @Before
+    fun setUp() {
+        Dispatchers.setMain(testDispatcher)
+        viewModel = CartViewModel()
+    }
 
-    private val fakeProduct = Producto(
-        id = "1",
-        nombre = "Producto Test",
-        precio = 100.0,
-        imageUrls = emptyList(),
-        description = "Descripción"
-    )
-
-    @Test
-    fun `addToCart agrega un item nuevo correctamente`() {
-        viewModel.addToCart(fakeProduct, 1)
-
-        val state = viewModel.uiState.value
-        assertEquals(1, state.cartItems.size)
-        assertEquals(100.0, state.totalPrice, 0.0)
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test
-    fun `addToCart suma cantidad si el producto ya existe`() {
-        viewModel.addToCart(fakeProduct, 1)
-        viewModel.addToCart(fakeProduct, 2)
+    fun `addToCart agrega un producto nuevo correctamente`() = runTest {
+        val productoMock = mockk<Producto>(relaxed = true)
+        every { productoMock.idProducto } returns 1
+        every { productoMock.precio } returns 1000
+
+        viewModel.addToCart(productoMock, 2)
 
         val state = viewModel.uiState.value
         assertEquals(1, state.cartItems.size)
-        assertEquals(3, state.cartItems[0].quantity)
-        assertEquals(300.0, state.totalPrice, 0.0)
+        assertEquals(2, state.cartItems[0].quantity)
+        assertEquals(2000.0, state.totalPrice, 0.0)
     }
 
     @Test
-    fun `updateQuantity modifica la cantidad y recalcula precio`() {
-        viewModel.addToCart(fakeProduct, 1)
-        viewModel.updateQuantity("1", 5)
+    fun `addToCart suma cantidad si el producto ya existe`() = runTest {
+        val productoMock = mockk<Producto>(relaxed = true)
+        every { productoMock.idProducto } returns 1
+        every { productoMock.precio } returns 1000
+
+        viewModel.addToCart(productoMock, 1)
+        viewModel.addToCart(productoMock, 3)
+
+        val state = viewModel.uiState.value
+        assertEquals(1, state.cartItems.size)
+        assertEquals(4, state.cartItems[0].quantity)
+        assertEquals(4000.0, state.totalPrice, 0.0)
+    }
+
+    @Test
+    fun `updateQuantity modifica la cantidad y recalcula total`() = runTest {
+        val productoMock = mockk<Producto>(relaxed = true)
+        every { productoMock.idProducto } returns 10
+        every { productoMock.precio } returns 500
+
+        viewModel.addToCart(productoMock, 1)
+        viewModel.updateQuantity(10, 5)
 
         val state = viewModel.uiState.value
         assertEquals(5, state.cartItems[0].quantity)
-        assertEquals(500.0, state.totalPrice, 0.0)
+        assertEquals(2500.0, state.totalPrice, 0.0)
     }
 
     @Test
-    fun `removeFromCart elimina el producto`() {
-        viewModel.addToCart(fakeProduct, 1)
-        viewModel.removeFromCart("1")
+    fun `updateQuantity elimina el producto si la cantidad es 0`() = runTest {
+        val productoMock = mockk<Producto>(relaxed = true)
+        every { productoMock.idProducto } returns 10
+        every { productoMock.precio } returns 500
+
+        viewModel.addToCart(productoMock, 2)
+        viewModel.updateQuantity(10, 0)
 
         val state = viewModel.uiState.value
-        assertEquals(0, state.cartItems.size)
+        assertTrue(state.cartItems.isEmpty())
         assertEquals(0.0, state.totalPrice, 0.0)
     }
 
     @Test
-    fun `clearCart vacia todo el carrito`() {
-        viewModel.addToCart(fakeProduct, 5)
+    fun `removeFromCart elimina el producto del carrito`() = runTest {
+        val p1 = mockk<Producto>(relaxed = true)
+        every { p1.idProducto } returns 1
+        every { p1.precio } returns 100
+
+        val p2 = mockk<Producto>(relaxed = true)
+        every { p2.idProducto } returns 2
+        every { p2.precio } returns 200
+
+        viewModel.addToCart(p1, 1)
+        viewModel.addToCart(p2, 1)
+
+        viewModel.removeFromCart(1)
+
+        val state = viewModel.uiState.value
+        assertEquals(1, state.cartItems.size)
+        assertEquals(2, state.cartItems[0].product.idProducto)
+        assertEquals(200.0, state.totalPrice, 0.0)
+    }
+
+    @Test
+    fun `clearCart vacia todo el carrito`() = runTest {
+        val productoMock = mockk<Producto>(relaxed = true)
+        every { productoMock.idProducto } returns 1
+        every { productoMock.precio } returns 1000
+
+        viewModel.addToCart(productoMock, 5)
         viewModel.clearCart()
 
         val state = viewModel.uiState.value
-        assertEquals(0, state.cartItems.size)
+        assertTrue(state.cartItems.isEmpty())
         assertEquals(0.0, state.totalPrice, 0.0)
     }
 }

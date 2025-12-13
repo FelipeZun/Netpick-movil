@@ -28,13 +28,15 @@ import com.example.netpick_movil.viewmodel.CategoryViewModelFactory
 import com.example.netpick_movil.viewmodel.HomeViewModel
 
 @Composable
-fun CategoriesScreen(navController: NavController) {
-    println("DEBUG: Entré a CategoriesScreen")
-    val repository = remember { CategoryRepository(RetrofitClient.apiService) }
-    val factory = remember { CategoryViewModelFactory(repository) }
-    val viewModel: CategoryViewModel = viewModel(factory = factory)
+fun CategoriesScreen(
+    navController: NavController,
+    viewModel: CategoryViewModel = viewModel(
+        factory = CategoryViewModelFactory(CategoryRepository(RetrofitClient.apiService))
+    )
+) {
 
     val uiState by viewModel.uiState.collectAsState()
+
 
     LaunchedEffect(Unit) {
         viewModel.loadCategorias()
@@ -76,55 +78,6 @@ fun CategoriesScreen(navController: NavController) {
                         }
                     )
                 }
-            }
-        }
-    }
-}
-
-
-@Composable
-fun ProductCard(navController: NavController, product: Producto) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                navController.navigate("product_detail/${product.idProducto}")
-            },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(modifier = Modifier.padding(8.dp)) {
-            AsyncImage(
-                model = product.linkImagen ?: "https://via.placeholder.com/150",
-                contentDescription = product.nombre,
-                modifier = Modifier
-                    .height(120.dp)
-                    .fillMaxWidth(),
-                contentScale = ContentScale.Crop,
-                onError = {
-                }
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = product.nombre ?: "Sin nombre",
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 2
-            )
-
-            Text(
-                text = "$ ${product.precio}",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            product.categoria?.nombre?.let { catNombre ->
-                Text(
-                    text = catNombre,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.secondary
-                )
             }
         }
     }

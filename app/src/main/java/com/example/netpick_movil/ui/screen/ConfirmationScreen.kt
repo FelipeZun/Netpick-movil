@@ -35,7 +35,7 @@ fun ConfirmationScreen(
         Icon(
             imageVector = Icons.Default.CheckCircle,
             contentDescription = "Compra Exitosa",
-            tint = Color(0xFF4CAF50), // Un color verde
+            tint = Color(0xFF4CAF50),
             modifier = Modifier.height(120.dp)
         )
         Spacer(modifier = Modifier.height(24.dp))

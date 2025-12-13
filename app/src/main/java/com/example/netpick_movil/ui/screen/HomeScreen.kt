@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -35,14 +36,11 @@ import com.example.netpick_movil.viewmodel.HomeViewModelFactory
 @Composable
 fun HomeScreen(
     navController: NavController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = viewModel(
+        factory = HomeViewModelFactory(RetrofitClient.apiService)
+    )
 ) {
-    val context = LocalContext.current
-    val apiService = RetrofitClient.apiService
-
-    val factory = HomeViewModelFactory(apiService = apiService)
-    val viewModel: HomeViewModel = viewModel(factory = factory)
-
     val uiState by viewModel.uiState.collectAsState()
     val productos = uiState.productosFiltrados
 
@@ -88,38 +86,47 @@ fun HomeScreen(
 }
 
 @Composable
-fun ProductCard(
-    navController: NavController,
-    product: Producto,
-    modifier: Modifier = Modifier
-) {
+fun ProductCard(navController: NavController, product: Producto) {
     Card(
-        modifier = modifier.clickable {
-            navController.navigate(Screen.ProductDetail.createRoute(product.idProducto))
-        }
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                navController.navigate("product_detail/${product.idProducto}")
+            },
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Column {
-            val imageUrl = product.linkImagen ?: "https://via.placeholder.com/300"
-
+        Column(modifier = Modifier.padding(8.dp)) {
             AsyncImage(
-                model = imageUrl,
-                contentDescription = null,
+                model = product.linkImagen ?: "https://via.placeholder.com/150",
+                contentDescription = product.nombre,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(128.dp),
-                contentScale = ContentScale.Crop
+                    .height(120.dp)
+                    .fillMaxWidth(),
+                contentScale = ContentScale.Crop,
+                onError = {
+                }
             )
 
-            Column(modifier = Modifier.padding(8.dp)) {
-                Text(
-                    text = product.nombre ?: "Producto",
-                    fontWeight = FontWeight.Bold
-                )
+            Spacer(modifier = Modifier.height(8.dp))
 
+            Text(
+                text = product.nombre ?: "Sin nombre",
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 2
+            )
+
+            Text(
+                text = "$ ${product.precio}",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            product.categoria?.nombre?.let { catNombre ->
                 Text(
-                    text = "$${product.precio}",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    text = catNombre,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
         }

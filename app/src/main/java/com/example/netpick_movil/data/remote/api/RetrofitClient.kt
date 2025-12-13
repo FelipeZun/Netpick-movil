@@ -2,7 +2,6 @@ package com.example.netpick_movil.data.remote.api
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-// Asegúrate de importar ApiService
 
 object RetrofitClient {
     private const val BASE_URL = "https://netpick-backend.onrender.com/api/v1/"

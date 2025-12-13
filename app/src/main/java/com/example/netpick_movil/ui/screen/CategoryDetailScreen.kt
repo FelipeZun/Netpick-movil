@@ -19,11 +19,11 @@ import com.example.netpick_movil.viewmodel.CategoryViewModelFactory
 fun CategoryDetailScreen(
     navController: NavController,
     categoryId: Int,
-    categoryName: String
+    categoryName: String,
+    viewModel: CategoryViewModel = viewModel(
+        factory = CategoryViewModelFactory(CategoryRepository(RetrofitClient.apiService))
+    )
 ) {
-    val repository = remember { CategoryRepository(RetrofitClient.apiService) }
-    val factory = remember { CategoryViewModelFactory(repository) }
-    val viewModel: CategoryViewModel = viewModel(factory = factory)
 
     LaunchedEffect(categoryId) {
         viewModel.loadProductos(categoryId)
