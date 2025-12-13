@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.netpick_movil" />
+                  <option name="mobileSdkAppId" value="1:73343961404:android:024c0dfcc9a8642d067639" />
+                  <option name="projectId" value="netpickkotlin-movil" />
+                  <option name="projectNumber" value="73343961404" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
