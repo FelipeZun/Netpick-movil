@@ -1,5 +1,6 @@
 package com.example.netpick_movil.ui.screen
 
+import android.content.Intent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -11,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -38,6 +40,8 @@ fun ProductDetailScreen(
     val product = uiState.product
     val isLoading = uiState.isLoading
     val errorMessage = uiState.errorMessage
+
+    val context = LocalContext.current
 
     when {
         isLoading -> {
@@ -110,7 +114,16 @@ fun ProductDetailScreen(
                         )
                     }
 
-                    IconButton(onClick = { /* compartir */ }) {
+                    IconButton(onClick = {
+                        val shareText = "Mira este producto en Netpick: ${product.nombre} a solo $${product.precio}. ${product.descripcion ?: ""}"
+
+                        val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                            putExtra(Intent.EXTRA_TEXT, shareText)
+                            type = "text/plain"
+                        }
+                        val shareIntent = Intent.createChooser(sendIntent, "Compartir producto vía")
+                        context.startActivity(shareIntent)
+                    }) {
                         Icon(Icons.Filled.Share, contentDescription = "Compartir")
                     }
                 }
