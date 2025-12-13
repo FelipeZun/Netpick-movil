@@ -56,7 +56,7 @@ fun NetpickScaffold(
                         unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
-                    val LabelWithLine: @Composable (String, Boolean) -> Unit = { text, isSelected ->
+                    val labelWithLine: @Composable (String, Boolean) -> Unit = { text, isSelected ->
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
@@ -77,35 +77,35 @@ fun NetpickScaffold(
 
                     NavigationBarItem(
                         icon = { },
-                        label = { LabelWithLine("Inicio", currentRoute == Screen.Home.route) },
+                        label = { labelWithLine("Inicio", currentRoute == Screen.Home.route) },
                         selected = currentRoute == Screen.Home.route,
                         onClick = { onNavigationItemClick(Screen.Home.route) },
                         colors = navItemColors
                     )
                     NavigationBarItem(
                         icon = { },
-                        label = { LabelWithLine("Categorías", currentRoute == Screen.Categories.route) },
+                        label = { labelWithLine("Categorías", currentRoute == Screen.Categories.route) },
                         selected = currentRoute == Screen.Categories.route,
                         onClick = { onNavigationItemClick(Screen.Categories.route) },
                         colors = navItemColors
                     )
                     NavigationBarItem(
                         icon = { },
-                        label = { LabelWithLine("Favoritos", currentRoute == Screen.Favorites.route) },
+                        label = { labelWithLine("Favoritos", currentRoute == Screen.Favorites.route) },
                         selected = currentRoute == Screen.Favorites.route,
                         onClick = { onNavigationItemClick(Screen.Favorites.route) },
                         colors = navItemColors
                     )
                     NavigationBarItem(
                         icon = { },
-                        label = { LabelWithLine("Carrito", currentRoute == Screen.Cart.route) },
+                        label = { labelWithLine("Carrito", currentRoute == Screen.Cart.route) },
                         selected = currentRoute == Screen.Cart.route,
                         onClick = { onNavigationItemClick(Screen.Cart.route) },
                         colors = navItemColors
                     )
                     NavigationBarItem(
                         icon = { },
-                        label = { LabelWithLine("Perfil", currentRoute == Screen.Profile.route) },
+                        label = { labelWithLine("Perfil", currentRoute == Screen.Profile.route) },
                         selected = currentRoute == Screen.Profile.route,
                         onClick = { onNavigationItemClick(Screen.Profile.route) },
                         colors = navItemColors
